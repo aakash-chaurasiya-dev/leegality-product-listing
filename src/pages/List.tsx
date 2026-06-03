@@ -177,7 +177,7 @@ export default function ProductListing() {
           </div>
 
           {paginatedProducts.length > 0 ? (
-            <div className={styles.grid}>
+            <div className={styles.productGrid}>
               {paginatedProducts.map((product) => (
                 <ProductCard key={product.id} product={product} />
               ))}

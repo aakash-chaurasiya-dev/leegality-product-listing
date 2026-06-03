@@ -17,7 +17,7 @@ export function useProducts({ page, limit = 12, category }: UseProductsParams) {
             if (category) {
                 return getProductByCategory(category);
             }
-            return getProduct({ limit, skip })
+            return getProduct({ limit:100, skip })
         },
     })
 }
