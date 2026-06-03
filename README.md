@@ -1,73 +1,177 @@
-# React + TypeScript + Vite
+# Leegality Product Listing
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+## Overview
 
-Currently, two official plugins are available:
+This project is a React + TypeScript product listing application built with Vite. It consumes the DummyJSON Products API and includes a responsive product catalog, filtering, search, and a product detail page.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## Tech Stack
 
-## React Compiler
+- React 19
+- TypeScript
+- Vite
+- React Router DOM
+- TanStack React Query
+- Axios
+- Tailwind CSS
+- CSS Modules
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Features
 
-## Expanding the ESLint configuration
+- Responsive product listing page
+- Search by product title
+- Category filtering
+- Price range filtering
+- Brand filtering
+- Mobile drawer sidebar for filters
+- Product detail page with description, price, rating, brand, and category
+- Loading and error states
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Project Structure
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```text
+src
+├── api
+│   ├── client.ts
+│   └── products.ts
+├── components
+│   ├── ErrorState.tsx
+│   ├── Loader.tsx
+│   ├── filters
+│   │   ├── BrandFilter.tsx
+│   │   ├── CategoryFilter.tsx
+│   │   └── PriceRangeFilter.tsx
+│   └── product
+│       └── ProductCard.tsx
+├── hooks
+│   ├── useProduct.ts
+│   └── useProductCategories.ts
+├── pages
+│   ├── DetailPage.tsx
+│   └── List.tsx
+├── providers
+│   └── QueryProvider.tsx
+├── routes
+│   └── AppRouter.tsx
+├── types
+│   └── product.ts
+├── App.tsx
+├── index.css
+└── main.tsx
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Routing
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `/` — Product listing page
+- `/product/:id` — Product detail page
 
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+## API Endpoints Used
+
+- `GET /products`
+- `GET /products/categories`
+- `GET /products/category/{category}`
+- `GET /products/{id}`
+
+## Available Scripts
+
+- `yarn dev` — Start the development server
+- `yarn build` — Build the production app
+- `yarn preview` — Preview the production build locally
+- `yarn lint` — Run ESLint checks
+
+## Getting Started
+
+```bash
+git clone https://github.com/aakash-chaurasiya-dev/leegality-product-listing
+cd leegality-product-listing
+yarn
+yarn dev
 ```
+
+Open `http://localhost:5173` in your browser.
+
+## Notes
+
+- Filters are available in a responsive sidebar on desktop and a drawer on mobile.
+- Product categories and brands are derived from the DummyJSON API.
+- The app uses React Query for caching and data fetching.
+
+```
+
+### Preview Production Build
+
+```bash
+yarn preview
+```
+
+---
+
+## Architectural Decisions
+
+### React Query
+
+React Query is used for:
+
+* API caching
+* Background refetching
+* Loading states
+* Error handling
+* Query invalidation
+
+### Axios
+
+A dedicated API client is created to centralize:
+
+* Base URL configuration
+* Request configuration
+* Future interceptors
+
+### Custom Hooks
+
+Data fetching logic is abstracted into custom hooks:
+
+* useProduct
+* useProductCategories
+
+This keeps UI components focused on presentation.
+
+### CSS Modules
+
+CSS Modules are used to:
+
+* Avoid style collisions
+* Improve maintainability
+* Keep styles scoped to components
+
+### TypeScript
+
+TypeScript provides:
+
+* Type safety
+* Better developer experience
+* Improved maintainability
+* Safer API integration
+
+---
+
+## Assumptions
+
+* DummyJSON API remains available.
+* Product data is considered read-only.
+* Brand filtering is performed client-side.
+* Price filtering is performed client-side.
+* Search filtering is performed client-side.
+
+---
+
+## Performance Considerations
+
+* React Query caching reduces unnecessary API calls.
+* Memoized filtering using useMemo.
+* Component-level separation reduces re-renders.
+* Lazy loading can be introduced for route-based code splitting.
+
+---
+
+## Author
+
+Aakash Chaurasiya

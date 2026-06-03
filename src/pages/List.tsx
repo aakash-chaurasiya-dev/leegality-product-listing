@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import clsx from 'clsx';
 
 import { BrandFilter } from '../components/filters/BrandFilter';
 import { CategoryFilter } from '../components/filters/CategoryFilter';
@@ -19,6 +20,7 @@ export default function ProductListing() {
   const [maxPrice, setMaxPrice] = useState('');
   const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
 
   const { data, isLoading, error } = useProducts({
     page,
@@ -107,6 +109,10 @@ export default function ProductListing() {
     setPage(1);
   }
 
+  function closeFilterDrawer() {
+    setIsFilterDrawerOpen(false);
+  }
+
   function handleClearFilters() {
     setSelectedCategory('');
     setMinPrice('');
@@ -114,6 +120,7 @@ export default function ProductListing() {
     setSelectedBrands([]);
     setSearchQuery('');
     setPage(1);
+    closeFilterDrawer();
   }
 
   if (isLoading) {
@@ -123,6 +130,45 @@ export default function ProductListing() {
   if (error) {
     return <ErrorState message="Failed to load products. Please try again later." />;
   }
+
+  const filterPanel = (
+    <>
+      <div className={styles.filterHeader}>
+        <h2 className={styles.filterTitle}>Filters</h2>
+        <div className={styles.filterHeaderActions}>
+          <button onClick={handleClearFilters} className={styles.clearButton}>
+            Clear
+          </button>
+          <button
+            type="button"
+            className={styles.closeDrawerButton}
+            onClick={closeFilterDrawer}
+          >
+            Close
+          </button>
+        </div>
+      </div>
+
+      <CategoryFilter
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onCategoryChange={handleCategoryChange}
+      />
+
+      <PriceRangeFilter
+        minPrice={minPrice}
+        maxPrice={maxPrice}
+        onMinPriceChange={handleMinPriceChange}
+        onMaxPriceChange={handleMaxPriceChange}
+      />
+
+      <BrandFilter
+        brands={brands}
+        selectedBrands={selectedBrands}
+        onBrandChange={handleBrandChange}
+      />
+    </>
+  );
 
   return (
     <main className={styles.page}>
@@ -139,36 +185,35 @@ export default function ProductListing() {
           onChange={(event) => handleSearchChange(event.target.value)}
           className={styles.searchInput}
         />
+
+        <button
+          type="button"
+          className={styles.filterToggleButton}
+          onClick={() => setIsFilterDrawerOpen(true)}
+        >
+          Filters
+        </button>
       </header>
 
       <div className={styles.layout}>
-        <aside className={styles.sidebar}>
-          <div className={styles.filterHeader}>
-            <h2 className={styles.filterTitle}>Filters</h2>
-            <button onClick={handleClearFilters} className={styles.clearButton}>
-              Clear
-            </button>
-          </div>
+        <div
+          className={clsx(
+            styles.drawerOverlay,
+            isFilterDrawerOpen && styles.drawerOverlayOpen,
+          )}
+          onClick={closeFilterDrawer}
+        />
 
-          <CategoryFilter
-            categories={categories}
-            selectedCategory={selectedCategory}
-            onCategoryChange={handleCategoryChange}
-          />
-
-          <PriceRangeFilter
-            minPrice={minPrice}
-            maxPrice={maxPrice}
-            onMinPriceChange={handleMinPriceChange}
-            onMaxPriceChange={handleMaxPriceChange}
-          />
-
-          <BrandFilter
-            brands={brands}
-            selectedBrands={selectedBrands}
-            onBrandChange={handleBrandChange}
-          />
+        <aside
+          className={clsx(
+            styles.sidebarDrawer,
+            isFilterDrawerOpen && styles.sidebarDrawerOpen,
+          )}
+        >
+          {filterPanel}
         </aside>
+
+        <aside className={styles.sidebar}>{filterPanel}</aside>
 
         <section className={styles.content}>
           <div className={styles.resultInfo}>

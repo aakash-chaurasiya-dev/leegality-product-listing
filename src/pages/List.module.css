@@ -23,7 +23,23 @@
 }
 
 .sidebar {
-  @apply h-fit space-y-5 rounded-xl border border-gray-200 bg-white p-5 shadow-sm;
+  @apply hidden h-fit space-y-5 rounded-xl border border-gray-200 bg-white p-5 shadow-sm lg:block;
+}
+
+.sidebarDrawer {
+  @apply fixed inset-y-0 left-0 z-40 w-full max-w-xs -translate-x-full overflow-y-auto border-r border-gray-200 bg-white p-5 shadow-xl transition-transform duration-300 lg:hidden;
+}
+
+.sidebarDrawerOpen {
+  @apply translate-x-0;
+}
+
+.drawerOverlay {
+  @apply fixed inset-0 z-30 bg-black/40 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden;
+}
+
+.drawerOverlayOpen {
+  @apply opacity-100 pointer-events-auto;
 }
 
 .filterHeader {
@@ -34,8 +50,20 @@
   @apply text-lg font-semibold text-gray-900;
 }
 
+.filterHeaderActions {
+  @apply flex items-center gap-2;
+}
+
 .clearButton {
   @apply text-sm font-medium text-blue-600 hover:text-blue-700;
+}
+
+.closeDrawerButton {
+  @apply inline-flex rounded-full border border-gray-200 bg-slate-100 px-3 py-2 text-sm font-medium text-slate-700 transition hover:bg-slate-200 lg:hidden;
+}
+
+.filterToggleButton {
+  @apply mt-4 inline-flex items-center justify-center rounded-full border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm transition hover:bg-gray-50 lg:hidden;
 }
 
 .content {
