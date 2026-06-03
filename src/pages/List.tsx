@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import clsx from 'clsx';
 
 import { BrandFilter } from '../components/filters/BrandFilter';
@@ -14,13 +15,48 @@ import styles from './List.module.css';
 const PRODUCTS_PER_PAGE = 12;
 
 export default function ProductListing() {
-  const [page, setPage] = useState(1);
-  const [selectedCategory, setSelectedCategory] = useState('');
-  const [minPrice, setMinPrice] = useState('');
-  const [maxPrice, setMaxPrice] = useState('');
-  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const [page, setPage] = useState(() => Number(searchParams.get('page') ?? '1'));
+  const [selectedCategory, setSelectedCategory] = useState(
+    () => searchParams.get('category') ?? '',
+  );
+  const [minPrice, setMinPrice] = useState(
+    () => searchParams.get('minPrice') ?? '',
+  );
+  const [maxPrice, setMaxPrice] = useState(
+    () => searchParams.get('maxPrice') ?? '',
+  );
+  const [selectedBrands, setSelectedBrands] = useState<string[]>(
+    () => searchParams.getAll('brand') ?? [],
+  );
+  const [searchQuery, setSearchQuery] = useState(
+    () => searchParams.get('search') ?? '',
+  );
   const [isFilterDrawerOpen, setIsFilterDrawerOpen] = useState(false);
+
+  useEffect(() => {
+    const params = new URLSearchParams();
+
+    if (selectedCategory) {
+      params.set('category', selectedCategory);
+    }
+    if (searchQuery) {
+      params.set('search', searchQuery);
+    }
+    if (minPrice) {
+      params.set('minPrice', minPrice);
+    }
+    if (maxPrice) {
+      params.set('maxPrice', maxPrice);
+    }
+    selectedBrands.forEach((brand) => params.append('brand', brand));
+    if (page > 1) {
+      params.set('page', String(page));
+    }
+
+    setSearchParams(params, { replace: true });
+  }, [selectedCategory, selectedBrands, searchQuery, minPrice, maxPrice, page, setSearchParams]);
 
   const { data, isLoading, error } = useProducts({
     page,
@@ -224,7 +260,11 @@ export default function ProductListing() {
           {paginatedProducts.length > 0 ? (
             <div className={styles.productGrid}>
               {paginatedProducts.map((product) => (
-                <ProductCard key={product.id} product={product} />
+                <ProductCard
+                  key={product.id}
+                  product={product}
+                  linkState={{ from: `${window.location.pathname}${window.location.search}` }}
+                />
               ))}
             </div>
           ) : (

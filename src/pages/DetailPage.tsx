@@ -1,14 +1,17 @@
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 
 import { useProduct } from '../hooks/useProduct';
 import styles from './DetailPage.module.css';
 
 export default function ProductDetail() {
   const { id } = useParams();
+  const location = useLocation();
 
   const { data: product, isLoading, error } = useProduct({
     productId: id,
   });
+
+  const backHref = location.state?.from ?? '/';
 
   if (isLoading) {
     return <div className={styles.state}>Loading product...</div>;
@@ -20,7 +23,7 @@ export default function ProductDetail() {
 
   return (
     <main className={styles.page}>
-      <Link to="/" className={styles.backButton}>
+      <Link to={backHref} className={styles.backButton}>
         ← Back to products
       </Link>
 

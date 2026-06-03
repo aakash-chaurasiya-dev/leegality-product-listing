@@ -5,11 +5,16 @@ import styles from './ProductCard.module.css';
 
 type ProductCardProps = {
   product: Product;
+  linkState?: { from: string };
 };
 
-export function ProductCard({ product }: ProductCardProps) {
+export function ProductCard({ product, linkState }: ProductCardProps) {
   return (
-    <Link to={`/product/${product.id}`} className={styles.card}>
+    <Link
+      to={`/product/${product.id}`}
+      state={linkState}
+      className={styles.card}
+    >
       <img
         src={product.thumbnail}
         alt={product.title}
