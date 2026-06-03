@@ -1,29 +1,214 @@
-import { useProducts } from "../hooks/useProduct";
-import { ProductCard } from "../components/product/ProductCard";
+import { useMemo, useState } from 'react';
+
+import { BrandFilter } from '../components/filters/BrandFilter';
+import { CategoryFilter } from '../components/filters/CategoryFilter';
+import { PriceRangeFilter } from '../components/filters/PriceRangeFilter';
+import { ProductCard } from '../components/product/ProductCard';
+import { useProductCategories } from '../hooks/useProductCategories';
+import { useProducts } from '../hooks/useProduct';
+import { ErrorState } from '../components/ErrorState';
+import { Loader } from '../components/Loader';
 import styles from './List.module.css';
 
-export default function List() {
+const PRODUCTS_PER_PAGE = 12;
 
-  const { data, isLoading, error } = useProducts({ page: 1 });
+export default function ProductListing() {
+  const [page, setPage] = useState(1);
+  const [selectedCategory, setSelectedCategory] = useState('');
+  const [minPrice, setMinPrice] = useState('');
+  const [maxPrice, setMaxPrice] = useState('');
+  const [selectedBrands, setSelectedBrands] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const { data, isLoading, error } = useProducts({
+    page,
+    limit: PRODUCTS_PER_PAGE,
+    category: selectedCategory,
+  });
+
+  const { data: categories } = useProductCategories();
+
+  const brands = useMemo(() => {
+    const productBrands =
+      data?.products
+        .map((product) => product.brand)
+        .filter((brand): brand is string => Boolean(brand)) ?? [];
+
+    return Array.from(new Set(productBrands)).sort();
+  }, [data?.products]);
+
+  const filteredProducts = useMemo(() => {
+    return (
+      data?.products.filter((product) => {
+        const matchesSearch = product.title
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase());
+
+        const matchesMinPrice = minPrice
+          ? product.price >= Number(minPrice)
+          : true;
+
+        const matchesMaxPrice = maxPrice
+          ? product.price <= Number(maxPrice)
+          : true;
+
+        const matchesBrand =
+          selectedBrands.length > 0
+            ? product.brand && selectedBrands.includes(product.brand)
+            : true;
+
+        return (
+          matchesSearch &&
+          matchesMinPrice &&
+          matchesMaxPrice &&
+          matchesBrand
+        );
+      }) ?? []
+    );
+  }, [data?.products, searchQuery, minPrice, maxPrice, selectedBrands]);
+
+  const paginatedProducts = filteredProducts.slice(
+    (page - 1) * PRODUCTS_PER_PAGE,
+    page * PRODUCTS_PER_PAGE,
+  );
+
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE),
+  );
+
+  function handleCategoryChange(category: string) {
+    setSelectedCategory(category);
+    setSelectedBrands([]);
+    setPage(1);
+  }
+
+  function handleBrandChange(brand: string) {
+    setSelectedBrands((currentBrands) =>
+      currentBrands.includes(brand)
+        ? currentBrands.filter((item) => item !== brand)
+        : [...currentBrands, brand],
+    );
+    setPage(1);
+  }
+
+  function handleMinPriceChange(value: string) {
+    setMinPrice(value);
+    setPage(1);
+  }
+
+  function handleMaxPriceChange(value: string) {
+    setMaxPrice(value);
+    setPage(1);
+  }
+
+  function handleSearchChange(value: string) {
+    setSearchQuery(value);
+    setPage(1);
+  }
+
+  function handleClearFilters() {
+    setSelectedCategory('');
+    setMinPrice('');
+    setMaxPrice('');
+    setSelectedBrands([]);
+    setSearchQuery('');
+    setPage(1);
+  }
 
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <Loader />;
   }
 
   if (error) {
-    return <div>something went wrong</div>;
+    return <ErrorState message="Failed to load products. Please try again later." />;
   }
 
-  
   return (
     <main className={styles.page}>
-      <h1 className={styles.title}>Products</h1>
+      <header className={styles.header}>
+        <div>
+          <p className={styles.eyebrow}>Amazon-style product catalogue</p>
+          <h1 className={styles.title}>Products</h1>
+        </div>
 
-      <div className={styles.grid}>
-        {data?.products.map((product) => (
-          <ProductCard key={product.id} product={product} />
-        ))}
+        <input
+          type="search"
+          placeholder="Search products..."
+          value={searchQuery}
+          onChange={(event) => handleSearchChange(event.target.value)}
+          className={styles.searchInput}
+        />
+      </header>
+
+      <div className={styles.layout}>
+        <aside className={styles.sidebar}>
+          <div className={styles.filterHeader}>
+            <h2 className={styles.filterTitle}>Filters</h2>
+            <button onClick={handleClearFilters} className={styles.clearButton}>
+              Clear
+            </button>
+          </div>
+
+          <CategoryFilter
+            categories={categories}
+            selectedCategory={selectedCategory}
+            onCategoryChange={handleCategoryChange}
+          />
+
+          <PriceRangeFilter
+            minPrice={minPrice}
+            maxPrice={maxPrice}
+            onMinPriceChange={handleMinPriceChange}
+            onMaxPriceChange={handleMaxPriceChange}
+          />
+
+          <BrandFilter
+            brands={brands}
+            selectedBrands={selectedBrands}
+            onBrandChange={handleBrandChange}
+          />
+        </aside>
+
+        <section className={styles.content}>
+          <div className={styles.resultInfo}>
+            Showing {paginatedProducts.length} of {filteredProducts.length}{' '}
+            products
+          </div>
+
+          {paginatedProducts.length > 0 ? (
+            <div className={styles.grid}>
+              {paginatedProducts.map((product) => (
+                <ProductCard key={product.id} product={product} />
+              ))}
+            </div>
+          ) : (
+            <div className={styles.emptyState}>No products found.</div>
+          )}
+
+          <div className={styles.pagination}>
+            <button
+              className={styles.paginationButton}
+              disabled={page === 1}
+              onClick={() => setPage((currentPage) => currentPage - 1)}
+            >
+              Previous
+            </button>
+
+            <span className={styles.pageInfo}>
+              Page {page} of {totalPages}
+            </span>
+
+            <button
+              className={styles.paginationButton}
+              disabled={page === totalPages}
+              onClick={() => setPage((currentPage) => currentPage + 1)}
+            >
+              Next
+            </button>
+          </div>
+        </section>
       </div>
     </main>
-  )
+  );
 }

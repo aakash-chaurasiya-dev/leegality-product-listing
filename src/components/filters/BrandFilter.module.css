@@ -1,0 +1,19 @@
+.container {
+  @apply space-y-3 border-t border-gray-200 pt-4;
+}
+
+.title {
+  @apply text-sm font-semibold text-gray-900;
+}
+
+.list {
+  @apply max-h-56 space-y-2 overflow-y-auto pr-1;
+}
+
+.option {
+  @apply flex cursor-pointer items-center gap-2 text-sm text-gray-700;
+}
+
+.option input {
+  @apply h-4 w-4 rounded border-gray-300;
+}
