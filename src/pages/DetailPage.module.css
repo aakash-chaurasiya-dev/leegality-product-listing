@@ -1,0 +1,43 @@
+.page {
+  @apply min-h-screen bg-gray-50 px-6 py-8;
+}
+
+.backButton {
+  @apply mb-6 inline-flex text-sm font-medium text-blue-600 hover:text-blue-700;
+}
+
+.container {
+  @apply grid gap-8 rounded-2xl bg-white p-6 shadow-sm md:grid-cols-2;
+}
+
+.image {
+  @apply h-96 w-full rounded-xl bg-gray-50 object-contain;
+}
+
+.content {
+  @apply flex flex-col justify-center;
+}
+
+.category {
+  @apply mb-2 text-sm font-medium uppercase tracking-wide text-gray-500;
+}
+
+.title {
+  @apply text-3xl font-bold text-gray-900;
+}
+
+.description {
+  @apply mt-4 text-base leading-7 text-gray-600;
+}
+
+.meta {
+  @apply mt-6 space-y-3 text-base text-gray-700;
+}
+
+.meta span {
+  @apply font-semibold text-gray-900;
+}
+
+.state {
+  @apply flex min-h-screen items-center justify-center text-gray-700;
+}
